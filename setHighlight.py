@@ -156,13 +156,14 @@ def setRandomText(textOptions, colour="red"):
     inky_display.show()
 
 
-requests_cache.install_cache('highlights_cache')
-token = os.environ.get("READWISE_TOKEN")
-all_highlights = get_all_readwise_highlights(token)
+def setHighlight():
+    requests_cache.install_cache('highlights_cache')
+    token = os.environ.get("READWISE_TOKEN")
+    all_highlights = get_all_readwise_highlights(token)
 
-highlight_text = []
+    highlight_text = []
 
-for highlight in all_highlights:
-    highlight_text.append(highlight['text'])
+    for highlight in all_highlights:
+        highlight_text.append(highlight['text'])
 
-setRandomText(highlight_text)
+    setRandomText(highlight_text)
