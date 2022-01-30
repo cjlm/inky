@@ -7,6 +7,7 @@ import os
 import time
 
 import requests
+import requests_cache
 
 from inky import InkyWHAT
 
@@ -155,6 +156,7 @@ def setRandomText(textOptions, colour="red"):
     inky_display.show()
 
 
+requests_cache.install_cache('highlights_cache')
 token = os.environ.get("READWISE_TOKEN")
 all_highlights = get_all_readwise_highlights(token)
 
@@ -163,6 +165,4 @@ highlight_text = []
 for highlight in all_highlights:
     highlight_text.append(highlight['text'])
 
-quote = random.choice(highlight_text)
-print(quote)
-setRandomText(quote)
+setRandomText(highlight_text)
