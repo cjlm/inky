@@ -3,7 +3,6 @@ from convertSetImage import convertSetImage
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 
-
 from time import sleep 
 from PIL import Image 
 
@@ -11,15 +10,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
     
-# from selenium.webdriver.firefox.options import Options
-# options = Options()
-# options.headless = True
 
 from selenium.webdriver.chrome.options import Options
 options = Options()
 options.add_argument("--headless")
 
-# browser = webdriver.Firefox(options=options)    
 browser = webdriver.Chrome('/usr/lib/chromium-browser/chromedriver',options=options);
 
 browser.set_window_size(1920, 2000)
