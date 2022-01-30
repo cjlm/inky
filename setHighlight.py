@@ -12,8 +12,6 @@ from PIL import Image, ImageFont, ImageDraw
 from font_source_serif_pro import SourceSerifProSemibold
 from font_source_sans_pro import SourceSansProSemibold
 
-from dotenv import load_dotenv
-
 def get_all_readwise_highlights(readwise_token):
     """ Returns a list of json objects corresponding to highlights extracted from the Readwise website.
     The function takes 1 parameter, which is the token used for accessing the user's Readwise highlights
@@ -155,7 +153,7 @@ def setRandomText(textOptions, colour="red"):
     inky_display.show()
 
 
-token = os.environ.get("readwise-token")
+token = os.environ.get("READWISE_TOKEN")
 all_highlights = get_all_readwise_highlights(token)['results']
 
 highlight_text = []
