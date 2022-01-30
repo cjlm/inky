@@ -6,6 +6,8 @@ import sys
 import os
 import time
 
+import requests
+
 from inky import InkyWHAT
 
 from PIL import Image, ImageFont, ImageDraw
@@ -125,7 +127,7 @@ def setRandomText(textOptions, colour="red"):
     author_x = quote_x
     author_y = quote_y + p_h
 
-    author = "- TBC"
+    author = ""
 
     # Draw red rectangles top and bottom to frame quote
 
@@ -154,13 +156,13 @@ def setRandomText(textOptions, colour="red"):
 
 
 token = os.environ.get("READWISE_TOKEN")
-all_highlights = get_all_readwise_highlights(token)['results']
+all_highlights = get_all_readwise_highlights(token)
 
 highlight_text = []
 
 for highlight in all_highlights:
     highlight_text.append(highlight['text'])
 
-quote = choice(highlight_text)
+quote = random.choice(highlight_text)
 print(quote)
 setRandomText(quote)
