@@ -44,6 +44,30 @@ def get_all_readwise_highlights(readwise_token):
         time.sleep(5)
     return all_current_readwise_highlights
 
+def get_all_readwise_books(readwise_token):
+    all_current_readwise_books = []
+    get_url = "https://readwise.io/api/v2/books/"
+    
+    # Use a loop to load more books in case not all books were returned.
+    while get_url is not None:
+        api_response = requests.get(
+            url=get_url,
+            headers={"Authorization": "Token " + readwise_token},
+            params={
+                'page_size': 1000
+            }
+        )
+        if api_response.status_code != 200:
+            print("Error: Extract of books from Readwise failed with status code " +
+                  str(api_response.status_code) + '. Please check that the provided Readwise token is correct.')
+            return None
+        data = api_response.json()
+        get_url = data['next']
+        all_current_readwise_books = all_current_readwise_books + \
+            data['results']
+        time.sleep(5)
+    return all_current_readwise_books
+
 # This function will take a quote as a string, a width to fit
 # it into, and a font (one that's been loaded) and then reflow
 # that quote with newlines to fit into the space required.
@@ -68,7 +92,7 @@ def reflow_quote(quote, width, font):
 
     return reflowed
 
-def setRandomText(textOptions, colour="red"):
+def setRandomText(highlightOptions, colour="red"):
 
     # Set up the correct display and scaling factors
     inky_display = InkyWHAT(colour)
@@ -106,7 +130,9 @@ def setRandomText(textOptions, colour="red"):
     # once rendered in the font and size defined.
 
     while not below_max_length:
-        quote = random.choice(textOptions)           
+        random_quote = random.choice(highlightOptions)
+        quote = random_quote.text
+        author = '― ' + random_quote.author
 
         reflowed = reflow_quote(quote, max_width, quote_font)
         p_w, p_h = quote_font.getsize(reflowed)  # Width and height of quote
@@ -127,8 +153,6 @@ def setRandomText(textOptions, colour="red"):
 
     author_x = quote_x
     author_y = quote_y + p_h
-
-    author = ""
 
     # Draw red rectangles top and bottom to frame quote
 
@@ -155,15 +179,29 @@ def setRandomText(textOptions, colour="red"):
     inky_display.set_image(img)
     inky_display.show()
 
+def get_book_for_highlight(id, all_books):
+    for book in all_books:
+        if book["id"] == id:
+            result = book
+            break
+        else:
+            result = {}
+    return result
 
 def setHighlight():
     requests_cache.install_cache('highlights_cache')
     token = os.environ.get("READWISE_TOKEN")
-    all_highlights = get_all_readwise_highlights(token)
 
-    highlight_text = []
+    all_highlights = get_all_readwise_highlights(token)
+    all_books = get_all_readwise_books(token)
+
+    highlight_options = []
 
     for highlight in all_highlights:
-        highlight_text.append(highlight['text'])
+        highlight["book"] = get_book_for_highlight(highlight["book_id"], all_books)
+        highlight_options.append(highlight)
 
-    setRandomText(highlight_text)
+    setRandomText(highlight_options)
+
+if __name__ == '__main__':
+    setHighlight()
