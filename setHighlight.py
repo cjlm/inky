@@ -132,7 +132,7 @@ def setRandomText(highlightOptions, colour="red"):
     while not below_max_length:
         random_quote = random.choice(highlightOptions)
         quote = random_quote["text"]
-        author = '― ' + random_quote["author"]
+        author = '― ' + random_quote["book"]["author"]
 
         reflowed = reflow_quote(quote, max_width, quote_font)
         p_w, p_h = quote_font.getsize(reflowed)  # Width and height of quote
