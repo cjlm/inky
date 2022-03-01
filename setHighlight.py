@@ -99,9 +99,6 @@ def setRandomText(highlightOptions, colour="red"):
     inky_display.set_border(inky_display.WHITE)
     # inky_display.set_rotation(180)
 
-    w = inky_display.WIDTH
-    h = inky_display.HEIGHT
-
     # Create a new canvas to draw on
 
     img = Image.new("P", (inky_display.WIDTH, inky_display.HEIGHT))
@@ -109,20 +106,21 @@ def setRandomText(highlightOptions, colour="red"):
 
     # Load the fonts
 
-    font_size = 24
+    font_size = 16
 
-    author_font = ImageFont.truetype(SourceSerifProSemibold, font_size)
-    quote_font = ImageFont.truetype(SourceSansProSemibold, font_size)
-
-    # The amount of padding around the quote. Note that
-    # a value of 30 means 15 pixels padding left and 15
-    # pixels padding right.
-    #
-    # Also define the max width and height for the quote.
-
+    w = inky_display.WIDTH
+    h = inky_display.HEIGHT
     padding = 50
-    max_width = w - padding
-    max_height = h - padding - author_font.getsize("ABCD ")[1]
+
+    def do_reflow(font_size, quote, author):
+        author_font = ImageFont.truetype(SourceSerifProSemibold, font_size)
+        quote_font = ImageFont.truetype(SourceSansProSemibold, font_size) 
+        max_width = w - padding
+        max_height = h - padding - author_font.getsize("ABCD ")[1]      
+        reflowed = reflow_quote(quote, max_width, quote_font)
+        p_w, p_h = quote_font.getsize(reflowed)  # Width and height of quote
+        p_h = p_h * (reflowed.count("\n") + 1)   # Multiply through by number of lines
+        return p_w, p_h, max_width, max_height, author_font, quote_font, reflowed
 
     below_max_length = False
 
@@ -134,13 +132,23 @@ def setRandomText(highlightOptions, colour="red"):
         quote = random_quote["text"]
         author = '― ' + random_quote["book"]["author"]
 
-        reflowed = reflow_quote(quote, max_width, quote_font)
-        p_w, p_h = quote_font.getsize(reflowed)  # Width and height of quote
-        p_h = p_h * (reflowed.count("\n") + 1)   # Multiply through by number of lines
+        p_w, p_h, max_width, max_height, author_font, quote_font, reflowed = do_reflow(font_size, quote, author)
 
         if p_h < max_height:
             below_max_length = True              # The quote fits! Break out of the loop.
 
+        else:
+            continue
+
+    fits = True
+
+    while fits == True:
+        font_size = font_size + 1
+        p_w, p_h, max_width, max_height, author_font, quote_font, reflowed = do_reflow(font_size, quote, author)
+        if p_h >= max_height:
+            fits = False              # The quote is too big, use one smaller
+            font_size = font_size - 1
+            p_w, p_h, max_width, max_height, author_font, quote_font, reflowed = do_reflow(font_size, quote, author)
         else:
             continue
 
@@ -189,7 +197,7 @@ def get_book_for_highlight(id, all_books):
     return result
 
 def setHighlight():
-    requests_cache.install_cache('highlights_cache')
+    requests_cache.install_cache(cache_name='highlights_cache', expire_after=1)
     token = os.environ.get("READWISE_TOKEN")
 
     all_highlights = get_all_readwise_highlights(token)
