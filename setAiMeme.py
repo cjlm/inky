@@ -6,7 +6,7 @@ from PIL import Image
 
 from selenium.webdriver.common.by import By
 
-def setMeme():
+def setAiMeme():
     browser = getBrowser("https://imgflip.com/ai-meme")
 
     waitForNoElement(browser, 'site-loading')
@@ -27,7 +27,7 @@ def setMeme():
     cropImg.save('croppedMeme.png') 
     browser.quit()  
 
-    # convertSetImage('croppedMeme.png')
+    convertSetImage('croppedMeme.png')
 
 if __name__ == "__main__":
     setMeme()
