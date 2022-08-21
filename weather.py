@@ -243,7 +243,7 @@ def day_lists_not_identical(days, other_days):
 
 def setWeather():
     api_key = os.environ.get('weather_token')
-    if (api_key == ""):
+    if (api_key == None):
         print("You forgot to enter your API key")
         exit()
     lat = "48.415910"
@@ -264,59 +264,56 @@ def setWeather():
 
     old_days = []
 
-    while(True):
-        try:
-            response = requests.get(url)
-            data = json.loads(response.text)
-        except:
-            None
+    try:
+        response = requests.get(url)
+        data = json.loads(response.text)
+    except:
+        None
 
-        days = []
-        daily = data["daily"]
-        for day in daily:
-            min = day["temp"]["min"]
-            max = day["temp"]["max"]
-            pop = day["pop"]
-            id = day["weather"][0]["id"]
-            sunrise = int(day["sunrise"])
-            sunset = int(day["sunset"])
-            days.append(Day(min, max, pop, id, sunrise, sunset))
+    days = []
+    daily = data["daily"]
+    for day in daily:
+        min = day["temp"]["min"]
+        max = day["temp"]["max"]
+        pop = day["pop"]
+        id = day["weather"][0]["id"]
+        sunrise = int(day["sunrise"])
+        sunset = int(day["sunset"])
+        days.append(Day(min, max, pop, id, sunrise, sunset))
 
-        if (day_lists_not_identical(days, old_days)):
-            old_days = copy.deepcopy(days)
+    if (day_lists_not_identical(days, old_days)):
+        old_days = copy.deepcopy(days)
 
-            img = convert(Image.new("P", (400, 300), 255))
-            draw = ImageDraw.Draw(img)
+        img = convert(Image.new("P", (400, 300), 255))
+        draw = ImageDraw.Draw(img)
 
-            for i in range(8):
-                name = "weather/icons/wi-"
-                t = int(time.time())
-                if (t < days[i].sunset):
-                    name += day_map[days[i].id]
-                else:
-                    name += night_map[days[i].id]
-                icon = get_icon(name)
-                x = tile_positions[i][0] + (TILE_WIDTH - ICON_SIZE) // 2
-                y = tile_positions[i][1]
-                img.paste(icon, (x, y))
-                text = str(int(100 * days[i].pop)) + "%"
-                w, h = font.getsize(text)
-                x = tile_positions[i][0] + (TILE_WIDTH - w) // 2
-                y = tile_positions[i][1] + ICON_SIZE + SPACE
-                draw.text((x, y), text, inky_display.BLACK, font)
-                text = str(days[i].min) + "|" + str(days[i].max) + "°"
-                w, h = font.getsize(text)
-                x = tile_positions[i][0] + (TILE_WIDTH - w) // 2
-                y += FONT_SIZE
-                draw.text((x, y), text, inky_display.RED, font)
-
-            if (USE_INKY):
-                inky_display.set_image(img)
-                inky_display.show()
+        for i in range(8):
+            name = "weather/icons/wi-"
+            t = int(time.time())
+            if (t < days[i].sunset):
+                name += day_map[days[i].id]
             else:
-                img.show()
+                name += night_map[days[i].id]
+            icon = get_icon(name)
+            x = tile_positions[i][0] + (TILE_WIDTH - ICON_SIZE) // 2
+            y = tile_positions[i][1]
+            img.paste(icon, (x, y))
+            text = str(int(100 * days[i].pop)) + "%"
+            w, h = font.getsize(text)
+            x = tile_positions[i][0] + (TILE_WIDTH - w) // 2
+            y = tile_positions[i][1] + ICON_SIZE + SPACE
+            draw.text((x, y), text, inky_display.BLACK, font)
+            text = str(days[i].min) + "|" + str(days[i].max) + "°"
+            w, h = font.getsize(text)
+            x = tile_positions[i][0] + (TILE_WIDTH - w) // 2
+            y += FONT_SIZE
+            draw.text((x, y), text, inky_display.RED, font)
 
-        time.sleep(3600)
+        if (USE_INKY):
+            inky_display.set_image(img)
+            inky_display.show()
+        else:
+            img.show()
 
 if __name__ == "__main__":
     setWeather()
